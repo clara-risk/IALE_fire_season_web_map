@@ -10,12 +10,11 @@ center: [-79.5, 47.88],
 zoom: 4,
 });
 
-var data = fetchJSON("dur1_geojson.geojson")
-            .then(function(data) { return data })
+
 map.on('load',function(){
 	
   map.addSource('pixels',{
-    'type':'geojson',
+    'type':'dur1_geojson.geojson',
     'data': data,
   });
   
