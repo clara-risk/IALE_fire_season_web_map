@@ -14,8 +14,8 @@ zoom: 4,
 map.on('load',function(){
 	
   map.addSource('pixels',{
-    'type':'dur1_geojson.geojson',
-    'data': data,
+    'type':'geojson',
+    'data':'dur1_geojson.geojson',
   });
   
   map.addLayer({
