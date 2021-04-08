@@ -14,7 +14,7 @@ map.on('load',function(){
 	
   map.addSource('pixels',{
     'type':'geojson',
-    'data': "https://github.com/clara-risk/IALE_fire_season_web_map/dur1_geojson.geojson",
+    'data': "dur1_geojson.geojson",
   });
   
   map.addLayer({
