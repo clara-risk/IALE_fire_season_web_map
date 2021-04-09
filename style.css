@@ -30,6 +30,21 @@ body, html {
     background: #fff;
 }
 
+#info2 {
+    position: absolute;
+    top: 650px;
+    right: 0px;
+    margin: 5px 5px auto auto;    
+    padding: 5px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: right;
+    color: #222;
+    background: #fff;
+}
+
+
 
 #tstamp {
 background: #fff;
