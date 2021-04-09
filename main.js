@@ -5,7 +5,7 @@ const mapbox_token = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNpam4yZzRpNjAwY2J1Zm01bnl
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2xhcmFyaXNrIiwiYSI6ImNrbjk5cGxoMjE1cHIydm4xNW55cmZ1cXgifQ.3CXp0GaWY1S7iMcPP8n9Iw';
 var map = new mapboxgl.Map({
 container: 'map',
-style: 'mapbox://styles/mapbox/basic-v9',
+style: 'mapbox://styles/mapbox/satellite-v9',
 center: [-79.5, 47.88],
 zoom: 4,
 });
@@ -22343,24 +22343,134 @@ var dur1 = {
 ]
 }
 
+const high = ['>', ['get', 'VALUE'], 160];
+const low = ['<', ['get', 'VALUE'], 160];
 
 map.on('load', function () {
 	
 map.addSource('dur1', {
 'type': 'geojson',
 'data': dur1,
+'cluster': true,
+'clusterRadius': 80,
+'clusterProperties': { 
+    'high': ['+', ['case', high, 1, 0]],
+    'low': ['+', ['case', low, 1, 0]],
+  }
 });
-	
+
+
+
+
+const current_fuel = "high";
+
 map.addLayer({
-'id': 'points',
-'type': 'circle',
-'source': 'dur1',
-'paint': {
-'circle-radius': 6,
-'circle-color': '#B42222'
-},
-'filter': ['==', '$type', 'Point']
+  'id': 'powerplant_cluster',
+  'type': 'circle',
+  'source': 'dur1',
+  'filter': [
+    'all',
+    ['>', ['get', current_fuel], 1],
+    ['==', ['get', 'cluster'], true]
+  ],
+  'paint': {
+    'circle-color': 'rgba(0,0,0,.6)',
+    'circle-radius': [
+      'step',
+      ['get', current_fuel],
+      20,
+      100,
+      30,
+      750,
+      40
+    ],
+    'circle-stroke-color': '#E67E22',
+    'circle-stroke-width': 5
+  }
+});
+
+map.addLayer({
+  'id': 'powerplant_cluster_label',
+  'type': 'symbol',
+  'source': 'dur1',
+  'filter': [
+    'all',
+    ['>', ['get', current_fuel], 1],
+    ['==', ['get', 'cluster'], true]
+  ],
+  'layout': {
+    'text-field': ['number-format', ['get', current_fuel], {}],
+    'text-font': ['Open Sans Semibold','Arial Unicode MS Bold'], 
+    'text-size': 12
+  },
+  'paint': {
+    'text-color': '#E67E22'
+  }
+});
+
 });
 
 
+// After the last frame rendered before the map enters an "idle" state.
+map.on('idle', function () {
+// If these two layers have been added to the style,
+// add the toggle buttons.
+if (map.getLayer('powerplant_cluster') && map.getLayer('powerplant_cluster_label')) {
+// Enumerate ids of the layers.
+var toggleableLayerIds = ['powerplant_cluster', 'powerplant_cluster_label'];
+// Set up the corresponding toggle button for each layer.
+var id = toggleableLayerIds[0];
+var id2 = toggleableLayerIds[1];
+var link = document.createElement('a');
+link.id = id;
+link.href = '#';
+link.textContent = id;
+link.className = 'active';
+
+if (!document.getElementById(id)) {
+// Create a link.
+// Show or hide layer when the toggle is clicked.
+link.onclick = function (e) {
+var clickedLayer = this.textContent;
+var associatedLayer = id2
+e.preventDefault();
+e.stopPropagation();
+ 
+var visibility = map.getLayoutProperty(
+clickedLayer,
+'visibility'
+);
+ 
+// Toggle layer visibility by changing the layout object's visibility property.
+if (visibility === 'visible') {
+map.setLayoutProperty(
+clickedLayer,
+'visibility',
+'none'
+);
+map.setLayoutProperty(
+associatedLayer,
+'visibility',
+'none'
+);
+this.className = '';
+} else {
+this.className = 'active';
+map.setLayoutProperty(
+clickedLayer,
+'visibility',
+'visible'
+);
+map.setLayoutProperty(
+associatedLayer,
+'visibility',
+'visible'
+);
+}
+};
+ 
+var layers = document.getElementById('menu');
+layers.appendChild(link);
+}
+}
 });
